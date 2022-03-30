@@ -1,0 +1,124 @@
+body {
+  margin: 0;
+  background-color:  #444444;
+  animation: background-effect 20s linear 0s infinite;
+  font-family: "Open Sans", helvetica;
+  position: absolute;
+  color: white;
+}
+
+h1 {
+  font-size: 100px;
+  text-decoration: bold;
+  text-align: center;
+  text-shadow: -10px -10px #222222;
+}
+
+button {
+    margin: auto calc(25vw - 150px);
+    width: 300px;
+    height: 150px;
+    background-color: #222222;
+    font-size: 75px;
+    font-family: "Open Sans", helvetica;
+    font-weight: bold;
+    text-shadow: -10px -10px #666666;
+    color: white;
+    transition: all 0.25s;
+    border-radius: 10px;
+    border-width: 0;
+}
+
+button:active {
+    text-shadow: 0 0 #666666;
+}
+
+@keyframes background-effect {
+    0% {
+        background-color:  #444444;
+    }
+    10% {
+        background-color:  #444444;
+    }
+    50% {
+        background-color:  #000000;
+    }
+    90% {
+        background-color:  #444444;
+    }
+    100% {
+        background-color:  #444444;
+    }
+}
+
+@keyframes foreground-effect {
+    0% {
+        color:  #444444;
+    }
+    10% {
+        color:  #444444;
+    }
+    50% {
+        color:  #000000;
+    }
+    90% {
+        color:  #444444;
+    }
+    100% {
+        color:  #444444;
+    }
+}
+
+.startScreen {
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    position: relative;
+    width: 50vw;
+    height: 50vh;
+
+}
+
+.map {
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    width: 75vh;
+    height: 75vh;
+    border: 5px solid white;
+    border-radius: 2.5px;
+}
+
+.player {
+    position: absolute;
+    top: 100%;
+    left: 0%;
+    transform: translate(0, -3.75vh);
+    width: calc(3.75vh - 10px);
+    height: calc(3.75vh - 10px);
+    border: 5px solid white;
+}
+
+.block {
+    position: absolute;
+    width: 3.75vh;
+    height: 3.75vh;
+    font-family: "Roboto Mono", "Lucida Console", "Courier", monospace;
+    font-size: 3vh;
+    color: black;
+    text-align: center;
+    animation: foreground-effect 20s linear 0s infinite;
+}
+
+.solid-block-1 {
+    background-color: #aaaaaa;
+}
+
+.solid-block-2 {
+    background-color: #c7c7c7;
+}
+
+.exit {
+    background-color: white;
+}
