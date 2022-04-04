@@ -17,6 +17,8 @@ function blocksToDiv(code, coordinates) {
       return "";
       break;
     case 1: return `<div class="block exit" style="top: ${coordinateToHtml(coordinates.y)}; left: ${coordinateToHtml(coordinates.x)};">#</div>`
+    case 16: return `<div class="block solid-block-1" style="top: ${coordinateToHtml(coordinates.y)}; left: ${coordinateToHtml(coordinates.x)};"></div>`
+    case 17: return `<div class="block solid-block-2" style="top: ${coordinateToHtml(coordinates.y)}; left: ${coordinateToHtml(coordinates.x)};"></div>`
   }
 }
 
@@ -34,7 +36,8 @@ document.querySelector(".all").ondragstart = () => false;
 
 document.querySelector("button").addEventListener("click", () => {
   document.querySelector(".startScreen").style.display = "none";
-  document.querySelector(".map").style.display = "block";
+  document.querySelector(".map_").style.display = "block";
+  document.querySelector("audio").play();
 });
 
 function coordinateToHtml(coordinate) {
@@ -55,6 +58,12 @@ let playerData = {
     up: false,
     down: false
   },
+  room: room(),
+  spawn: () => {
+    playerData.coordinates.x = playerData.room.spawnCoordinates.x;
+    playerData.coordinates.y = playerData.room.spawnCoordinates.y;
+    updatePlayer();
+  },
   jumps: 0,
   maxJumps: Infinity
 };
@@ -70,6 +79,15 @@ let keys = {
 function updatePlayer() {
   player.style.top = coordinateToHtml(playerData.coordinates.y);
   player.style.left = coordinateToHtml(playerData.coordinates.x);
+}
+
+function loadmap_() {
+  document.querySelector(".blocks").innerHTML = "";
+  for (var y = playerData.room.map_.length - 1; y >= 0; y--) {
+    for (var x = playerData.room.map_[y].length - 2; x >= -1;x--) {
+       document.querySelector(".blocks").innerHTML += blocksToDiv(playerData.room.map_[y][x + 1], {x: x, y: y - 1});
+     } 
+  }
 }
 
 function left() {
@@ -145,15 +163,40 @@ let checkKeys = setInterval(() => {
     jump();
   }
 
+  let boundaryBox = {
+    topleft: {
+      x: Math.floor(playerData.coordinates.x),
+      y: Math.floor(playerData.coordinates.y)
+    },
+    topright: {
+      x: Math.ceil(playerData.coordinates.x),
+      y: Math.floor(playerData.coordinates.y)
+    },
+    bottomright: {
+      x: Math.ceil(playerData.coordinates.x),
+      y: Math.ceil(playerData.coordinates.y)
+    }, 
+    bottomleft: {
+      x: Math.floor(playerData.coordinates.x),
+      y: Math.ceil(playerData.coordinates.y)
+    }
+  }
+
   if (playerData.coordinates.x < -1) {
     playerData.coordinates.x = -1;
     playerData.collision.left = true;
+  } else if ((playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] >= 16 && playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] < 32 && !playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] < 32) || (playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1] >= 16 && playerData.room.map_[boundaryBox.bottomleft.y)][boundaryBox.bottomleft.x + 1] < 32 && !playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] < 32)) {
+    playerData.coordinates.x += 0.05;
+    player.collision.left = true;
   } else {
     playerData.collision.left = false;
   }
   if (playerData.coordinates.x > 18) {
     playerData.coordinates.x = 18;
     playerData.collision.right = true;
+  } else if ((playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] >= 16 && playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] < 32) || (playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] >= 16 && playerData.room.map_[Math.ceil(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] < 32)) {
+    playerData.coordinates.x -= 0.05;
+    player.collision.right = true;
   } else {
     playerData.collision.right = false;
   }
@@ -169,6 +212,11 @@ let checkKeys = setInterval(() => {
   } else {
     playerData.collision.down = false;
   }
+
+  // Detect collision 
+
+  // Right 
+
 
   if (playerData.gravity == -1 ? playerData.collision.up : playerData.collision.down) {
     playerData.speedY = 0;
@@ -191,7 +239,7 @@ function room() {
 
   };
 
-  roomObject["map"] = [
+  roomObject["map_"] = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -219,7 +267,7 @@ function room() {
   roomObject["exits"] = [];
 
   roomObject["placeBlock"] = (coordinates, blockType) => {
-    roomObject["map"][coordinates.y][coordinates.x] = blockType;
+    roomObject["map_"][coordinates.y][coordinates.x] = blockType;
   }
 
   roomObject["setSpawn"] = coordinates => {
@@ -228,7 +276,7 @@ function room() {
   }
 
   roomObject["setExit"] = (exitCoordinates, handler) => {
-    roomObject["map"][exitCoordinates.y][exitCoordinates.x] = Blocks.Exit;
+    roomObject["map_"][exitCoordinates.y][exitCoordinates.x] = Blocks.Exit;
     roomObject["exits"].push({
       coordinates: exitCoordinates,
       exitHandler: handler
