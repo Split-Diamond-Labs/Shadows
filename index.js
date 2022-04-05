@@ -36,9 +36,13 @@ document.querySelector(".all").ondragstart = () => false;
 
 document.querySelector("button").addEventListener("click", () => {
   document.querySelector(".startScreen").style.display = "none";
-  document.querySelector(".map_").style.display = "block";
+  document.querySelector(".map").style.display = "block";
   document.querySelector("audio").play();
 });
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function coordinateToHtml(coordinate) {
   return `${100 * (coordinate + 1) / 20}%`;
@@ -81,7 +85,7 @@ function updatePlayer() {
   player.style.left = coordinateToHtml(playerData.coordinates.x);
 }
 
-function loadmap_() {
+function loadMap() {
   document.querySelector(".blocks").innerHTML = "";
   for (var y = playerData.room.map_.length - 1; y >= 0; y--) {
     for (var x = playerData.room.map_[y].length - 2; x >= -1;x--) {
@@ -182,21 +186,38 @@ let checkKeys = setInterval(() => {
     }
   }
 
+
+
   if (playerData.coordinates.x < -1) {
     playerData.coordinates.x = -1;
     playerData.collision.left = true;
-  } else if ((playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] >= 16 && playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] < 32 && !playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] < 32) || (playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1] >= 16 && playerData.room.map_[boundaryBox.bottomleft.y)][boundaryBox.bottomleft.x + 1] < 32 && !playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] < 32)) {
-    playerData.coordinates.x += 0.05;
-    player.collision.left = true;
+  } else if (playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] >= 16 && playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] < 32) {
+    if (!playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] < 32) {
+      playerData.coordinates.x += 0.05;
+      player.collision.left = true;
+    }
+  } else if ((playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1]) >= 16 && playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1] < 32) {
+    if (!playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] >= 16 && !playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] < 32) {
+      playerData.coordinates.x += 0.05;
+      player.collision.left = true;
+    }
   } else {
     playerData.collision.left = false;
   }
+  
   if (playerData.coordinates.x > 18) {
     playerData.coordinates.x = 18;
     playerData.collision.right = true;
-  } else if ((playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] >= 16 && playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] < 32) || (playerData.room.map_[Math.floor(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] >= 16 && playerData.room.map_[Math.ceil(playerData.coordinates.y)][Math.ceil(playerData.coordinates.x) + 1] < 32)) {
-    playerData.coordinates.x -= 0.05;
-    player.collision.right = true;
+  } else if (playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] >= 16 && playerData.room.map_[boundaryBox.topright.y][boundaryBox.topright.x + 1] < 32) {
+    if (!playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] >= 16 && !playerData.room.map_[boundaryBox.topleft.y][boundaryBox.topleft.x + 1] < 32) {
+      playerData.coordinates.x += 0.05;
+      player.collision.right = true;
+    }
+  } else if ((playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1]) >= 16 && playerData.room.map_[boundaryBox.bottomright.y][boundaryBox.bottomright.x + 1] < 32) {
+    if (!playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1] >= 16 && !playerData.room.map_[boundaryBox.bottomleft.y][boundaryBox.bottomleft.x + 1] < 32) {
+      playerData.coordinates.x += 0.05;
+      player.collision.right = true;
+    }
   } else {
     playerData.collision.right = false;
   }
@@ -212,11 +233,6 @@ let checkKeys = setInterval(() => {
   } else {
     playerData.collision.down = false;
   }
-
-  // Detect collision 
-
-  // Right 
-
 
   if (playerData.gravity == -1 ? playerData.collision.up : playerData.collision.down) {
     playerData.speedY = 0;
